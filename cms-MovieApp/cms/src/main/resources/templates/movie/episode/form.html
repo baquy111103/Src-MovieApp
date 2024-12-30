@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+</head>
+
+<style>
+    .select2-container .select2-selection--single {
+        height: 35px;
+        line-height: 35px;
+    }
+
+    .select2-container .select2-dropdown {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .is-invalid {
+        border: 2px solid red;
+        background-color: #ffe5e5;
+    }
+</style>
+
+<body>
+<section class="content" th:fragment="content">
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 th:text="#{episode}"></h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item active"></li>
+                        </ol>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+
+        <!-- Default box -->
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+                    <div class="d-flex justify-content-start mb-3">
+                        <a th:href="@{'/cmsmovie/episode/index/1'}"
+                           th:text="#{back}"
+                           class="btn btn-danger"
+                           style="width: 125px; left: 886px; top: 389px; border-radius: 3px; margin-left: 8px">
+                        </a>
+                    </div>
+                    <form th:action="@{'/cmsmovie/episode/save'}" method="post" th:object="${model}" enctype="multipart/form-data">
+                        <input type="hidden" id="id" name="id" th:value="${model.id}">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="episode_number" style="font-weight: bold"><span>[[#{episode}]]</span><span style="color:red"> *</span></label>
+                                <input type="text" id="episode_number" th:field="*{episode_number}" name="episode_number"
+                                       class="form-control" required style="height: 35px" maxlength="50">
+                            </div>
+                            <div class="col-6">
+                                <label for="duration" style="font-weight: bold"><span>[[#{duration}]]</span><span style="color:red"> *</span></label>
+                                <input type="text" id="duration" th:field="*{duration}" name="duration"
+                                       class="form-control" style="height: 35px" maxlength="50" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="videoPath" style="font-weight: bold; padding-bottom: 5px;">
+                                    <span>[[#{video}]] <span style="color: red;">*</span></span>
+                                </label>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <!-- Hiển thị video nếu có video_url trong model -->
+                                        <div th:if="${model.video_url != null}">
+                                            <video id='hls-example' class="video-js embed-responsive-16by9" controls muted style="min-width: 250px; height: 200px;">
+                                                <source  type="video/mp4" th:src="${model.video_url}">
+                                                <input type="hidden" id="video_url" name="video_url" th:value="${model.video_url}">
+                                            </video>
+                                        </div>
+
+                                        <!-- Input để chọn video mới khi cập nhật -->
+                                        <input type="file" id="videoPath" name="videoPath" class="form-control input-group-addon" accept=".mp4">
+                                        <label class="custom-file-label" for="videoPath" id="videoLabel">Select video</label>
+
+                                        <input type="hidden" id="videoName" name="videoName" >
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-6">
+                                <label for="release_date"><span>[[#{release_date}]] <span style="color: red;">*</span></span></label>
+                                <input type="datetime-local" id="release_date" name="release_date" th:field="*{release_date}"
+                                       class="form-control" step="1" required style="height: 35px">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="movie_code" style="font-weight: bold"><span>[[#{series}]] <span style="color: red;">*</span></span></label>
+                                <select id="movie_code" name="movie_code" class="form-control" style="height: 35px" th:field="*{movie_code}" required>
+                                    <option th:value="${model.movie_code}" th:text="${model.movie_name}"></option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="description" style="font-weight: bold"><span>[[#{description}]]</span></label>
+                                <textarea type="text" id="description" name="description"
+                                          th:field="*{description}" class="form-control" maxlength="255"
+                                          style="font-size: 14px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-start mb-3" style="padding-left: 0 !important;">
+                            <button id="submitButton" type="submit" class="btn btn-primary me-md-2"
+                                    th:text="#{create}" style="width: 125px;" th:if="${model.id==null}"></button>
+                            <button id="submitButton" type="submit" class="btn btn-primary me-md-2"
+                                    th:text="#{update}" style="width: 125px;" th:if="${model.id!=null}"></button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for upload progress -->
+        <div id="upload-popup" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h5 class="modal-title" id="staticBackdropLabel">Upload progress</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress">
+                            <div id="uploadProgressBar" class="progress-bar bg-primary progress-bar-striped" role="progressbar"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                <span class="sr-only">0% Complete (success)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script th:fragment="content">
+
+    $(document).ready(function () {
+        // Initialize Select2
+        $('#movie_code').select2({
+            ajax: {
+                type: 'GET',
+                url: 'http://localhost:8083/cmsmovie/movie/ajax-search-movie',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        input_: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            },
+            placeholder: `[[#{select2.movie_code}]]`,
+            minimumInputLength: 0,
+            allowClear: true
+        });
+    });
+
+
+    // Progressbar
+    // function updateProgressBar(progress) {
+    //     $('#uploadProgressBar').css('width', progress + '%');
+    //     $('#uploadProgressBar').attr('aria-valuenow', progress);
+    //     if (progress < 100) {
+    //         setTimeout(function() { updateProgressBar(progress + 10); }, 1000);
+    //     } else {
+    //         $('#upload-popup').modal('hide');
+    //     }
+    // }
+
+    function updateProgressBar(progress) {
+        $('#uploadProgressBar').css('width', progress + '%');
+        $('#uploadProgressBar').attr('aria-valuenow', progress);
+        if (progress < 100) {
+            setTimeout(function() { updateProgressBar(progress + 10); }, 3000);
+        }
+    }
+
+    document.getElementById('videoPath').addEventListener('change', function (e) {
+        var fileName = e.target.files[0].name;
+        document.getElementById('videoLabel').textContent = fileName;
+        document.getElementById('videoName').value = fileName;
+    });
+
+    $('#submitButton').on('click', function(event) {
+        event.preventDefault();
+
+        var form = $(this).closest('form');
+        var isValid = true;
+
+
+        form.find('input[required], textarea[required], select[required]').each(function() {
+            if (!$(this).val().trim()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            return;
+        }
+
+
+        $(this).prop('disabled', true);
+
+        $('#upload-popup').modal('show');
+        updateProgressBar(0);
+
+        var form = $(this).closest('form');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: form.attr('method'),
+            data: new FormData(form[0]),
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#upload-popup').modal('hide');
+                updateProgressBar(100);
+                setTimeout(function() {
+                    window.location.href = '/cmsmovie/episode/index/1';
+                }, 1000);
+            },
+            error: function(xhr, status, error) {
+                alert("Có lỗi xảy ra khi upload!");
+                $('#upload-popup').modal('hide');
+                $('#submitButton').prop('disabled', false);
+            }
+        });
+    });
+
+</script>
+
+</body>
+</html>

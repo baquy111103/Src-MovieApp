@@ -1,0 +1,20 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",  // Thêm hỗ trợ cho TypeScript JSX (.tsx)
+    "**/*.jsx",  // Đảm bảo rằng .jsx cũng được bao gồm
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "app/**/*",   // Bao gồm toàn bộ thư mục app
+    "app/screens/**/*" // Bao gồm toàn bộ thư mục screens
+, "app/screens"  ]
+}

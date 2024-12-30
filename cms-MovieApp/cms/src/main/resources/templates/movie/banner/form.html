@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<style>
+
+</style>
+<body>
+<section class="content" th:fragment="content">
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 th:text="#{banner}"></h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item active"></li>
+                        </ol>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+        <!-- Default box -->
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+                    <div class="d-flex justify-content-start mb-3">
+                        <a th:href="@{'/cmsmovie/banner/index/1'}"
+                           th:text="#{back}"
+                           class="btn btn-danger"
+                           style="width: 125px; left: 886px; top: 389px; border-radius: 3px; margin-left: 8px">
+                        </a>
+                    </div>
+                    <form th:action="@{'/cmsmovie/banner/save'}" method="post" th:object="${model}" enctype="multipart/form-data">
+                        <input type="hidden" id="id" name="id" th:value="${model.id}?${model.id}">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="title" style="font-weight: bold"><span>[[#{nameBanner}]]</span><span style="color:red"> *</span></label>
+                                <input type="text" id="title" th:field="*{title}" name="name"
+                                       class="form-control" required style="height: 35px" maxlength="50">
+                            </div>
+
+<!--                            <div class="col-6">-->
+<!--                                <label for="movie_banner_code" style="font-weight: bold"><span>[[#{id}]]</span><span style="color:red"> *</span></label>-->
+<!--                                <input type="text" id="movie_banner_code" th:field="*{movie_banner_code}" name="movie_banner_code"-->
+<!--                                       class="form-control" style="height: 35px" maxlength="50" required>-->
+<!--                            </div>-->
+                            <input type="text" id="movie_banner_code" th:field="*{movie_banner_code}" name="movie_banner_code" hidden>
+
+                            <div class="col-6">
+                                <label for="position" style="font-weight: bold">
+                                    <span>[[#{position}]]</span>
+                                    <span style="color:red"> *</span>
+                                </label>
+                                <select id="position" th:field="*{position}" name="position"
+                                        class="form-control" required style="height: 35px">
+                                    <option value="" disabled selected>[[#{please.select}]]</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="row mb-3">
+<!--                            <div class="col-6">-->
+<!--                                <label for="banner_image" style="font-weight: bold"><span>[[#{image}]]</span><span style="color:red"> *</span></label>-->
+<!--                                <input type="text" id="banner_image" th:field="*{banner_image}" name="banner_image"-->
+<!--                                       class="form-control" required style="height: 35px" >-->
+<!--                            </div>-->
+                            <div class="col-6">
+                                <label for="start_date"><span>[[#{startDate}]] <span style="color: red;">*</span></span></label>
+                                <input type="datetime-local" id="start_date" name="start_date" th:field="*{start_date}"
+                                       class="form-control" step="1" required style="height: 31px">
+                            </div>
+
+                            <div class="col-6">
+                                <label for="end_date"><span>[[#{endDate}]] <span style="color: red;">*</span></span></label>
+                                <input type="datetime-local" id="end_date" name="end_date" th:field="*{end_date}"
+                                       class="form-control" step="1" required style="height: 31px">
+                            </div>
+
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label style="font-weight: bold"><span>[[#{status}]]</span><span style="color:red"> *</span></label>
+                                <select class="form-control" id="status" th:field="*{status}" name="status" required style="height: 31px;">
+                                    <option value='0' th:text="#{deactive}"></option>
+                                    <option value='1' th:text="#{active}"></option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <div id="dnd" class="form-group  h-100 w-100 d-inline-block">
+                                    <label for="file_image"><span>[[#{image}]] <span style="color: red;">*</span></span></label>
+                                    <div id="image_upload" class="form-control d-flex justify-content-center" style="width: 615px; height: 210px; padding: 5px;">
+                                        <img id="banner_image" th:src="${model.banner_image}" class="img-fluid"/>
+                                    </div>
+                                </div>
+                                <input type="file" id="file_image" accept="image/*" hidden="hidden" style="cursor: pointer;">
+                                <input type="text" id="fileInput1" name="thumbUpload"  hidden>
+                                <input type="hidden" id="banner_image" name="banner_image" th:value="${model.banner_image}" />
+
+                            </div>
+
+                        </div>
+                        <div class="row mb-3">
+
+                        </div>
+                        <div class="d-flex justify-content-start mb-3"
+                             style="padding-left: 0 !important;">
+                            <button id="submitButton" type="submit" class="btn btn-primary me-md-2"
+                                    th:text="#{create}"
+                                    style="width: 125px; left: 886px; top: 389px; border-radius: 3px;" th:if="${model.id==null}"></button>
+                            <button id="submitButton" type="submit" class="btn btn-primary me-md-2"
+                                    th:text="#{update}"
+                                    style="width: 125px; left: 886px; top: 389px; border-radius: 3px;" th:if="${model.id!=null}"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modal-crop-image">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="w-100"><h4 class="modal-title text-center">CROP IMAGE</h4></div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex flex-row justify-content-between">
+                            <div class="d-flex flex-column justify-content-between align-items-center h-100" style="width: 100%;">
+                                <img id="image" th:src="@{/img/vn.jpeg}" style="max-width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"  id="closePopupButton">Close</button>
+                        <button type="button" class="btn btn-default" id="apply_crop_image">OK</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+    </div>
+
+</section>
+<script th:fragment="content">
+
+    //Check thoi gian startDate va endDate
+        $(document).ready(function () {
+            $('#start_date').on('change', function () {
+                let startDateValue = new Date($(this).val());
+                let endDateValue = new Date($('#end_date').val());
+                if (endDateValue < startDateValue) {
+                    $('#end_date').val($(this).val());
+                }
+                $('#end_date').attr('min', $(this).val());
+            });
+            $('#end_date').on('change', function () {
+                let startDateValue = new Date($('#start_date').val());
+                let endDateValue = new Date($(this).val());
+                if (startDateValue > endDateValue) {
+                    $('#start_date').val($(this).val());
+                }
+                $('#start_date').attr('max', $(this).val());
+            });
+        });
+
+
+    $(document).ready(function() {
+        $("#image_upload").click(function () {
+            $("#file_image").click();
+        });
+
+        let image = document.getElementById("image");
+        let cropper = "";
+        let fileName = "";
+        $("#file_image").change(function (e) {
+            let reader = new FileReader();
+            console.log(e.target.files.length);
+            if (e.target.files.length == 0)
+                return;
+            reader.readAsDataURL(e.target.files[0]);
+
+            reader.onload = () => {
+                image.setAttribute("src", reader.result);
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(image, {
+                    aspectRatio: NaN, // Không ép tỷ lệ
+                    viewMode: 1,
+                    minContainerWidth: 720, // Kích thước tối thiểu của container
+                    minContainerHeight: 360, // Kích thước tối thiểu của container
+                    scalable: true, // Cho phép phóng to, thu nhỏ
+                    zoomable: true, // Cho phép zoom
+                });
+
+                $('#modal-crop-image').modal('show');
+            };
+            fileName = e.target.files[0].name.split(".")[0];
+
+        });
+
+
+        $("#apply_crop_image").click(function (e) {
+            let imgSrc;
+            e.preventDefault();
+            const croppedCanvas = cropper.getCroppedCanvas({
+                width: Math.min(cropper.getImageData().naturalWidth, 1200),
+                height: Math.min(cropper.getImageData().naturalHeight, 400),
+            });
+            if (croppedCanvas) {
+                imgSrc = croppedCanvas.toDataURL("image/jpeg", 0.75);
+            }
+            console.log(imgSrc);
+
+            $("#banner_image").attr("src", imgSrc);
+            $("#fileInput1").val(imgSrc);
+            $('#modal-crop-image').modal('hide');
+        });
+    });
+</script>
+
+</body>
+</html>
+
+
+

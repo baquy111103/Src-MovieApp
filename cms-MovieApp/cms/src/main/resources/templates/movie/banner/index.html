@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+
+<body>
+<section class="content" th:fragment="content">
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Banner Page</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">Banner Page</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- Default box -->
+    <div class="container-fluid">
+      <div class="card card-default">
+        <div class="card-body">
+          <form method="get" th:action="@{/cmsmovie/banner/index}">
+            <div class="row">
+              <div class="col-12 col-md-6 my-3">
+                <label for="title" style="font-weight: bold" th:text="#{name}"></label>
+                <input type="text" id="title" th:value="${title}?${title}" name="title"
+                       class="form-control"
+                       aria-label="Title name" maxlength="45">
+              </div>
+
+              <div class="col-12 col-md-6 my-3">
+                <label for="position" style="font-weight: bold" th:text="#{position}"></label>
+                <input type="text" id="position" th:value="${position}" name="position"
+                       class="form-control" aria-label="position">
+                <small id="position-error" class="form-text text-danger"></small>
+              </div>
+              <input type="text" id="pageSizeInput" name="pageSize" th:value="${pageSize}?${pageSize}"
+                     class="form-control" hidden>
+              <div class="col-6 pt-4">
+                <button type="submit" class="btn btn-primary mx-2">
+                  <i class="fas fa-search"></i><span class="px-2" th:text="#{search}"></span>
+                </button>
+                <button id="reset" type="reset" class="btn btn-primary mx-2">
+                  <i class="fa fa-refresh"></i><span class="px-2" >reset</span>
+                </button>
+                <a th:href="@{/cmsmovie/banner/create}" class="btn btn-primary mx-2">
+                  <i class="fas fa-plus"></i><span class="px-2" >create</span>
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card card-default mt-4">
+        <div class="card-body">
+          <table class="table custom-table table-bordered">
+            <thead class="thead-light">
+            <tr>
+              <th class="text-center" th:text="#{no}"></th>
+              <th class="text-center" th:text="#{name}"></th>
+              <th class="text-center" th:text="#{image}"></th>
+              <th class="text-center" th:text="#{status}"></th>
+              <th class="text-center" th:text="#{position}"></th>
+              <th class="text-center" th:text="#{startDate}"></th>
+              <th class="text-center" th:text="#{endDate}"></th>
+              <th class="text-center" th:text="#{action}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="model, item:${models}">
+              <th class="text-center" scope="row" style="font-weight: normal; color: #000000;"
+                  th:text="${item.index + pageSize*currentPage - (pageSize-1)}">1
+              </th>
+              <td class="text-center" th:text="${model.title}"></td>
+              <td class="text-center">
+                <div class="dropdown">
+                  <img class="dropdown-toggle" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       style="height: 35px" th:src="${model.banner_image}">
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <img style="height:200px" th:src="${model.banner_image}">
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
+                <span th:if="${model.status == false}">Inactive</span>
+                <span th:if="${model.status == true}">Active</span>
+              </td>
+              <td class="text-center" th:text="${model.position}"></td>
+              <td class="text-center" th:text="${#dates.format(model.start_date, 'dd-MM-yyyy')}"
+                  style="white-space: nowrap;"></td>
+              <td class="text-center" th:text="${#dates.format(model.end_date, 'dd-MM-yyyy')}"
+                  style="white-space: nowrap;"></td>
+
+              <td class="text-center">
+                <div>
+                  <!-- Nút Update -->
+                  <a title="Update" class="btn p-0"
+                     th:href="@{'/cmsmovie/banner/update/' + ${model.id}}"
+                     style="cursor: pointer;">
+                    <i class="far fa-edit" style="color: #00709e;"></i>
+                  </a>
+
+                  <!-- Nút Delete hiển thị khi status = true -->
+                  <button th:if="${model.status == true}"
+                          th:onclick="|deleteBanner('${model.id}', '${currentPage}', '${pageSize}')|"
+                          style="cursor: pointer;" type="button" class="btn" title="Delete">
+                    <i class="fas fa-trash-alt" style="color: #ff0000;"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div th:replace="common :: table_paging2"> </div>
+      </div>
+    </div>
+    <div class="modal fade" id="delete-modal-sm">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" th:text="#{action.todoBanner}"></h4>
+          </div>
+          <div class="modal-body">
+            <p th:text="#{apply.delete}"></p>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button id="apply" type="button" class="btn btn-primary" th:text="#{apply}"></button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</section >
+<script th:fragment="content">
+  console.log("Hello");
+  var reset = document.querySelector('#reset');
+  reset.onclick = function(e) {
+      e.preventDefault();
+      document.querySelector('#title').value = '';
+      document.querySelector('#position').value = '';
+  };
+
+
+   function deleteBanner(id, page, pageSize) {
+      if (page == null || page == "" || page == "null")
+          page = 1;
+      $("#delete-modal-sm").modal('show');
+      $("#apply").off('click').on('click', function () {
+                  window.location.href = `/cmsmovie/banner/delete/${page}?pageSize=${pageSize}&id=${id}`;
+
+          $('#delete-modal-sm').modal('hide');
+      });
+   }
+function linkpage(page){
+        console.log(page);
+        var urlPage = window.location.href;
+        var utlBase = '';
+        var urlParram = '';
+        let start = 0;
+        for(let i = 0; i < urlPage.length-1; i++){
+            if(urlPage.charAt(i) =='?'){
+                start = i;
+                break;
+            }
+        }
+        if(start > 0){
+            utlBase = urlPage.substring(0,start);
+            urlParram = urlPage.substring(start,urlPage.length);
+        }else {
+            utlBase = urlPage;
+        }
+        console.log(page);
+        start = 0;
+        for(let i = urlPage.length-1; i > 0; i--){
+            if(urlPage.charAt(i) =='/'){
+                start = i;
+                break;
+            }
+        }
+        if(isNaN(utlBase.substring(start+1,utlBase.length))){
+            utlBase += '/'+ page;
+        }
+        else{
+            utlBase = utlBase.substring(0, start + 1)+ page;
+        }
+        var pageSize = document.getElementById('pageSizeInput').value;
+        var urlSearchParams = new URLSearchParams(urlPage);
+        // Thay đổi giá trị của tham số pageSize
+        urlSearchParams.set('pageSize', pageSize);
+        urlSearchParams.set('title', `[[${title}]]`);
+        urlSearchParams.set('position', `[[${position}]]`);
+        var dem = 0;
+        urlParram = '';
+        urlSearchParams.forEach(function(value, key) {
+            if(dem==1){
+                urlParram += '?'+key+'='+value;
+            }
+            else if(dem>1){
+                urlParram += '&'+key+'='+value;
+            }
+            dem++;
+        });
+        console.log(urlParram);
+        var newUrl = utlBase + urlParram;
+        window.location.href = newUrl;
+    }
+
+
+document.querySelector('form').onsubmit = function (e) {
+    const positionInput = document.querySelector('#position');
+    const errorMessage = document.querySelector('#position-error');
+    const positionValue = positionInput.value;
+    if (positionValue !== '' && (isNaN(positionValue) || !Number.isInteger(parseFloat(positionValue)))) {
+        e.preventDefault();
+        errorMessage.textContent = 'Position phải là số nguyên!';
+        errorMessage.style.color = 'red';
+        positionInput.focus();
+        return false;
+    }
+    errorMessage.textContent = '';
+};
+</script>
+
+</body>
+
+
+
+</html>
+
+
+

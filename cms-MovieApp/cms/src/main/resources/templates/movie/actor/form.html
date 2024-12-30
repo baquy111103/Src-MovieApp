@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<style>
+    .select2-container .select2-selection--single {
+        height: 35px;
+        line-height: 35px;
+    }
+
+    .select2-container .select2-dropdown {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+<body>
+<section class="content" th:fragment="content">
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 th:text="#{actor}"></h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item active"></li>
+                        </ol>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+        <!-- Default box -->
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+                    <div class="d-flex justify-content-start mb-3">
+                        <a th:href="@{'/cmsmovie/actor/index/1'}"
+                           th:text="#{back}"
+                           class="btn btn-danger"
+                           style="width: 125px; left: 886px; top: 389px; border-radius: 3px; margin-left: 8px">
+                        </a>
+
+                    </div>
+                    <form th:action="@{'/cmsmovie/actor/save'}" method="post" th:object="${model}" enctype="multipart/form-data">
+                        <input type="hidden" id="id" name="id" th:value="${model.id}?${model.id}">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="name" style="font-weight: bold"><span>[[#{name}]]</span><span style="color:red"> *</span></label>
+                                <input type="text" id="name" th:field="*{name}" name="name"
+                                       class="form-control" required style="height: 35px" maxlength="50">
+                            </div>
+
+                            <div class="col-6">
+                                <label for="date_of_birth"><span>[[#{date_of_birth}]] <span style="color: red;">*</span></span></label>
+                                <input type="datetime-local" id="date_of_birth" name="date_of_birth" th:field="*{date_of_birth}"
+                                       class="form-control" step="1" required style="height: 35px">
+                            </div>
+                            <input type="text" id="actor_code" th:field="*{actor_code}" name="actor_code"
+                                   hidden >
+
+<!--                            <div class="col-6">-->
+<!--                                <label for="actor_code" style="font-weight: bold"><span>[[#{id}]]</span><span style="color:red"> *</span></label>-->
+<!--                                <input type="text" id="actor_code" th:field="*{actor_code}" name="actor_code"-->
+<!--                                       class="form-control" style="height: 35px" maxlength="50" required>-->
+<!--                            </div>-->
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label style="font-weight: bold"><span>[[#{role}]]</span><span style="color:red"> *</span></label>
+                                <select class="form-control" id="status" th:field="*{status}" name="status" required style="height: 35px;">
+                                    <option value='0' th:text="#{performer}"></option>
+                                    <option value='1' th:text="#{author}"></option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="bio"
+                                       style="font-weight: bold"><span>[[#{bio}]]</span></label>
+                                <textarea type="text" id="bio" name="bio"
+                                          th:field=*{bio}
+                                          class="form-control" maxlength="255"
+                                          style="font-size: 14px;"></textarea>
+                            </div>
+
+
+
+                        </div>
+
+                        <div class="row mb-3">
+<!--                            <div class="col-6">-->
+<!--                                <label for="avatar" style="font-weight: bold"><span>[[#{avatar}]]</span><span style="color:red"> *</span></label>-->
+<!--                                <input type="text" id="avatar" th:field="*{avatar}" name="avatar"-->
+<!--                                       class="form-control" style="height: 35px"  required>-->
+<!--                            </div>-->
+                            <div class="col-6">
+                                <div id="dnd" class="form-group  h-100 w-100 d-inline-block">
+                                    <label for="file_image"><span>[[#{avatar}]] <span style="color: red;">*</span></span></label>
+                                    <div id="image_upload" class="form-control d-flex justify-content-center" style="width: 212px; height: 210px; padding: 5px;">
+                                        <img id="avatar" th:src="${model.avatar}" class="img-fluid"/>
+                                    </div>
+                                </div>
+                                <input type="file" id="file_image" accept="image/*" hidden="hidden" style="cursor: pointer;">
+                                <input type="text" id="fileInput1" name="thumbUpload"  hidden>
+                                <input type="hidden" id="avatar" name="avatar" th:value="${model.avatar}">
+                            </div>
+
+                        </div>
+                        <div class="d-flex justify-content-start mb-3"
+                             style="padding-left: 0 !important;">
+                            <button id="submitButton" type="submit" class="btn btn-primary me-md-2"
+                                    th:text="#{create}"
+                                    style="width: 125px; left: 886px; top: 389px; border-radius: 3px;" th:if="${model.id==null}"></button>
+                            <button id="submitButton" type="submit" class="btn btn-primary me-md-2"
+                                    th:text="#{update}"
+                                    style="width: 125px; left: 886px; top: 389px; border-radius: 3px;" th:if="${model.id!=null}"></button>
+                        </div>
+                    </form>
+
+
+
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modal-crop-image">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="w-100"><h4 class="modal-title text-center">CROP IMAGE</h4></div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex flex-row justify-content-between">
+                            <div class="d-flex flex-column justify-content-between align-items-center h-100" style="width: 100%;">
+                                <img id="image" th:src="@{/img/vn.jpeg}" style="max-width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"  id="closePopupButton">Close</button>
+                        <button type="button" class="btn btn-default" id="apply_crop_image">OK</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+    </div>
+
+</section>
+<script th:fragment="content">
+
+    $(document).ready(function() {
+
+        //======== BEGIN CROPPER SETUP 1 ========
+        $("#image_upload").click(function () {
+            $("#file_image").click();
+        });
+
+        let image = document.getElementById("image");
+        let cropper = "";
+        let fileName = "";
+        $("#file_image").change(function (e) {
+            let reader = new FileReader();
+            console.log(e.target.files.length);
+            if (e.target.files.length == 0)
+                return;
+            reader.readAsDataURL(e.target.files[0]);
+
+            reader.onload = () => {
+                image.setAttribute("src", reader.result);
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(image, {
+                    aspectRatio: 1 / 1,
+                    viewMode: 1,
+                    minContainerWidth: 500,
+                    minContainerHeight: 500,
+                });
+
+                $('#modal-crop-image').modal('show');
+            };
+            fileName = e.target.files[0].name.split(".")[0];
+
+        });
+
+
+        $("#apply_crop_image").click(function (e) {
+            let imgSrc;
+            e.preventDefault();
+            const croppedCanvas = cropper.getCroppedCanvas({
+                width: 200,
+                height: 200,
+            });
+            if (croppedCanvas) {
+                imgSrc = croppedCanvas.toDataURL("image/jpeg", 0.75);
+            }
+            console.log(imgSrc);
+
+            $("#avatar").attr("src", imgSrc);
+            $("#fileInput1").val(imgSrc);
+            $('#modal-crop-image').modal('hide');
+        });
+    });
+</script>
+
+</body>
+</html>
+
+
+
